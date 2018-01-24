@@ -8,6 +8,7 @@ import initContextMenu from './../contextMenu/contextMenu';
 
 const {
   isOSX, linkIsInternal, getCssToInject, shouldInjectCss, getAppIcon,
+  shouldRequireMainWindowScript, getMainWindowRequireScriptPath
 } = helpers;
 
 const ZOOM_INTERVAL = 0.1;
@@ -46,6 +47,20 @@ function maybeInjectCss(browserWindow) {
     // will run multiple times
     browserWindow.webContents.on('did-get-response-details', injectCss);
   });
+}
+
+function maybeRequireMainWindowScript(browserWindow) {
+  if (!shouldRequireMainWindowScript()) {
+    return;
+  }
+
+  const requirePath = getMainWindowRequireScriptPath();
+  // Dynamically require the main window script(s)
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  const mainWindowRequireContent = require(requirePath);
+  if (typeof mainWindowRequireContent === 'function') {
+    mainWindowRequireContent(browserWindow);
+  }
 }
 
 
@@ -170,6 +185,7 @@ function createMainWindow(inpOptions, onAppQuit, setDockBadge) {
   }
 
   maybeInjectCss(mainWindow);
+  maybeRequireMainWindowScript(mainWindow);
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('params', JSON.stringify(options));
   });

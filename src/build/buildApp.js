@@ -67,7 +67,9 @@ function maybeCopyScripts(srcs, dest) {
     }
 
     let destFileName;
-    if (path.extname(src) === '.js') {
+    if (src.endsWith('.main.js')) {
+      destFileName = 'main.js';
+    } else if (path.extname(src) === '.js') {
       destFileName = 'inject.js';
     } else if (path.extname(src) === '.css') {
       destFileName = 'inject.css';

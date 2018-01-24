@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 const INJECT_CSS_PATH = path.join(__dirname, '..', 'inject/inject.css');
+const INJECT_MAIN_SCRIPT_PATH = path.join(___dirname, '..', 'inject/main.js');
 const log = require('loglevel');
 
 function isOSX() {
@@ -38,8 +39,21 @@ function shouldInjectCss() {
   }
 }
 
+function shouldRequireMainWindowScript() {
+  try {
+    fs.accessSync(INJECT_MAIN_SCRIPT_PATH, fs.F_OK);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function getCssToInject() {
   return fs.readFileSync(INJECT_CSS_PATH).toString();
+}
+
+function getMainWindowRequireScriptPath() {
+  return INJECT_MAIN_SCRIPT_PATH;
 }
 
 /**
@@ -68,4 +82,6 @@ export default {
   debugLog,
   shouldInjectCss,
   getAppIcon,
+  shouldRequireMainWindowScript,
+  getMainWindowRequireScriptPath
 };
